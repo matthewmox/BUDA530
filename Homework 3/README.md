@@ -1,4 +1,4 @@
-README
+Homework 3
 ================
 
 Complete the assignment below. Make sure you answer each part of the
