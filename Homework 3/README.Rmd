@@ -48,20 +48,98 @@ BillionairesByCountry <- Billionaires_Statistics_Dataset %>%
   mutate(gdp_country=as.numeric(gsub("\\$|\\,", "", gdp_country))) # fix a problem with GDP being a string
 ```
 
-BLah Blah 
+```{r}
+BillionairesByCountry2 <- na.omit(BillionairesByCountry)
+summary(BillionairesByCountry2)
+str(BillionairesByCountry2)
+``` 
 Now you have the summarized dataset `BillionairesByCountry`. Use this dataset to:
 
 (1) Build a Poisson regression model to predict the number of billionaires per country (`count_billionaires`) using the other variables in the dataset (except for `country`). Note: It is industry standard to use a `log` transform when using large financial metrics such as `gdp_country` and `tax_revenue_country_country` as predictors so make sure you do that. Note: you will have to deal with "NAs", do so using `na.omit`.
 
+### Attribute selection and model formulation
+```{r}
+library(car)
+library(dplyr)
+library(faraway)
+library(effects)
+``` 
+
+```{r}
+BillionairesByCountry2 %>%
+  powerTransform(
+    cbind(
+      gdp_country,
+      gross_tertiary_education_enrollment,
+      gross_primary_education_enrollment_country,
+      life_expectancy_country,
+      tax_revenue_country_country,
+      population_country
+    ) ~ count_billionaires,
+    data = .
+  ) %>%
+  summary()
+``` 
+
+```{r}
+pmod1 <- glm(count_billionaires ~ log(gdp_country) + log(gross_primary_education_enrollment_country) + log(population_country)+ gross_tertiary_education_enrollment + life_expectancy_country, data = BillionairesByCountry2, family = "poisson")
+
+summary(pmod1)
+``` 
+
+### Stepwise selection
 (2) Use `step` for model feature selection.
+```{r}
+pmod2 <- glm(count_billionaires ~ log(gdp_country) + log(gross_primary_education_enrollment_country) + log(population_country)+ gross_tertiary_education_enrollment + life_expectancy_country, data = BillionairesByCountry2, family = "poisson") %>% 
+  step
+
+summary(pmod2)
+``` 
+
+### Dispersion and effects plot
 
 (3) Check for overdispersion/ underdispersion and account for it in your final model if necessary.
+```{r}
+dp <- sum(residuals(pmod1,type="pearson")^2)/pmod1$df.res
+dp
+summary(pmod2,dispersion=dp)
 
+qpmod1 <- glm(count_billionaires ~ log(gdp_country) + log(gross_primary_education_enrollment_country) + log(population_country)+ life_expectancy_country, data = BillionairesByCountry2, family = "quasipoisson") 
+
+summary(qpmod1)
+``` 
 (3) Use the `effects` library to create effects plots for the final model (remember to adjust the `fig.height` and `fig.width` chunk options so that the plots look nice).
-
+```{r}
+plot(allEffects(qpmod1), fig.width = 8, fig.height = 12)
+``` 
 (4) Write a summary of your methodology for your direct supervisor. You direct supervisor has a similar statistical background as you, but does not use it on a daily basis so you will need to briefly refresh them on the statistical concepts you used and explain your methodology in detail. You know from previous experience that your supervisor is will be interested in why you did not use `country` as a predictor, why you used a `log` transform for large financial metrics, why you chose to omit "NAs", and how you accounted for overdispersion/ underdispersion.
 
+### Summary for supervisor
+
+ I began by loading and preparing the billionaires dataset for analysis. During this process, I selected relevant variables, grouped the data by country, and performed a powertransform to see which variables would benefit from a log transformation. I then used na.omit to handle missing values. The next step in my analysis was to build a Poisson regression model. I chose the Poisson model because the response variable, the count of billionaires per country, is a count data which typically follows a Poisson distribution. I transformed large financial metrics like GDP and tax revenue to reduce skewness, stabilize variance, and improve the model's linearity assumption as indicated by the power transform function. 
+  I checked for overdispersion in our Poisson model. Overdispersion occurs when the variance is greater than the mean, which violates an assumption of the Poisson distribution. I quantified dispersion with the ratio of the sum of squared Pearson residuals to the residual degrees of freedom. To account for potential overdispersion, I refitted the model using a quasi-Poisson family, which adjusts the standard errors for overdispersion.Finally, I used the effects package to create plots visualizing the effects of the model predictors on the response variable. These plots provide a graphical representation of the relationships and help in understanding the model in a more intuitive way. 
+  I did not use country as a predictor for several reasons. First, country is a nominal variable with many levels, which can lead to a large number of parameters, reducing interpretability. Second, there might be multicollinearity between country and other predictors, such as GDP, which are inherently related to the country's economy.
+
 (5) Write a summary of the key findings for the VP of your firm that you report under who is particularly interested in this project. This VP also has a similar statistical background to you and your supervisor, but has not used in years. Further your VP is an extremely busy person and does not like reading long reports; however they will ask an annoying number of questions if they do not understand something. Strike a balance between including how you arrived at the results and the results themselves. Are there certain details you can footnote rather include directly in the body of the report? Are their resources on the web you can hyperlink for additional information rather than recreate the wheel (i.e. [Poisson regression - Wikipedia](https://en.wikipedia.org/wiki/Poisson_regression) ).
+
+### Summary for VP
+We have used a statistical model to understand the factors that influence the number of billionaires per country. Our findings suggest the following:
+
+1. Economic Prosperity: There is a strong positive correlation between a country's GDP and the number of billionaires it has. An increase of 1% in GDP is associated with a rise of approximately 1.26% in the number of billionaires. This highlights the importance of overall economic health in generating top-tier wealth.
+
+2. Education's Surprising Influence: Contrary to expectations, primary education enrollment has a substantial positive effect on the number of billionaires. The model indicates that a 1% increase in enrollment corresponds to an increase of approximately 3.84% in the number of billionaires. This could be due to the long-term benefits of education on a country's economic environment.
+
+3. Population Size Matters Less: Surprisingly, population size displayed a negative correlation. An increase of 1% in population corresponds to a decrease of about 0.24% in the number of billionaires. This suggests that having a larger population does not necessarily translate to more billionaires when controlling for other factors.
+
+4. Healthier Societies: Life expectancy had a negative impact on the number of billionaires, with a higher life expectancy associated with fewer billionaires. This could be due to complex social factors where health investments are made at the expense of economic ones that generate billionaires.
+
+We have ensured the robustness of our model by accounting for overdispersion, which is reflected by our final model being a quasipoisson model.
+
+[Poisson regression - Wikipedia](https://en.wikipedia.org/wiki/Poisson_regression)
+[Handling overdispersion on Poisson regressionmodel](https://pubs.aip.org/aip/acp/article-abstract/2326/1/020026/1000550/The-handling-of-overdispersion-on-Poisson?redirectedFrom=fulltext)
+
+[QuasiPoisson regression](https://wiki.q-researchsoftware.com/wiki/Regression_-_Quasi-Poisson_Regression)
+
 
 (6) Suppose your VP responds to your report with the email below. Write a brief response to this email (do not actually write any additional code or do any additional analysis for this part). 
 
@@ -74,6 +152,21 @@ Additionally, I'd be interested in a comparison between the models with and with
 Lastly, I know metrics like "GDP" aren't going to be available for all countries (i.e. Hong Kong), but I'd like to see if we can estimate a value for these countries so we don't exclude them from consideration. I'm going to reach out to some consultants to see if they have any ideas; do you have any concerns I should bring up with them? In particular, would you want to use these estimates for training your model or just for prediction?
 
 Thanks!"
+
+### VP response
+Dear VP,
+
+I am writing to discuss our analysis of countries without billionaires. To accomplish this, we can utilize statistical models that are specifically designed for datasets with an excess of zeros. One such model is the Zero-Inflated Poisson (ZIP) regression, which models count data with an excess number of zero count outcomes. This model is particularly useful when the data has more zeros than would be expected in a standard Poisson distribution, which aligns with the scenario of countries without billionaires.
+
+To compare models with and without additional countries, we can use cross-validation. This approach allows us to assess the predictive performance of our models on different subsets of the data and ensure that our model remains robust when applied to a broader context. We can use the Caret package in R to implement this.
+
+When GDP data isn't directly available for certain countries, we can use proxy variables or econometric estimation techniques to approximate the GDP values. These estimates could be based on related economic indicators that are available. It's important to ensure that any estimates of GDP are as accurate as possible and that the methodology for estimation is consistent across different countries. While using estimates for training could introduce bias, it might be necessary to include as many countries as possible. To minimize the risk of bias, we can initially use these estimates only for prediction purposes and then evaluate if the model's performance is not adversely affected before considering them in the training phase.
+
+Please let me know if you have any questions or concerns.
+
+Best regards,
+Matthew Moxam
+
 
 (7) OPTIONAL (no points toward the assignment, but good practice): Write a brief response to the email below from your direct supervisor. You can be more informal since you work with your direct supervisor daily.
 
@@ -89,13 +182,19 @@ Thanks!"
 The dataset `happy` in the `faraway` package is about 39 students from the University of Chicago MBA cohort.  
 
 ```{r}
+library(car)
+library(dplyr)
 library(faraway)
+library(effects)
+```
+
+```{r}
+# This code converts the happy variable from a numeric variable to an ordered factor variable
 data(happy)
 str(happy)
 summary(happy)
 help(happy)
 ```
-
 We want to explain the effects of the other information on the happiness of the students.  The variable `happy` is a numeric variable that ranges from 0 to 10, with 10 being the happiest. This is recorded as a number, so we must first convert it an ordered factor variable using the code below:
 
 ```{r}
