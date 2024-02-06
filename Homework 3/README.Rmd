@@ -112,22 +112,25 @@ summary(qpmod1)
 ```{r}
 plot(allEffects(qpmod1), fig.width = 8, fig.height = 12)
 ``` 
-(4) Write a summary of your methodology for your direct supervisor. You direct supervisor has a similar statistical background as you, but does not use it on a daily basis so you will need to briefly refresh them on the statistical concepts you used and explain your methodology in detail. You know from previous experience that your supervisor is will be interested in why you did not use `country` as a predictor, why you used a `log` transform for large financial metrics, why you chose to omit "NAs", and how you accounted for overdispersion/ underdispersion.
 
 ### Summary for supervisor
+
+(4) Write a summary of your methodology for your direct supervisor. You direct supervisor has a similar statistical background as you, but does not use it on a daily basis so you will need to briefly refresh them on the statistical concepts you used and explain your methodology in detail. You know from previous experience that your supervisor is will be interested in why you did not use `country` as a predictor, why you used a `log` transform for large financial metrics, why you chose to omit "NAs", and how you accounted for overdispersion/ underdispersion.
 
  I began by loading and preparing the billionaires dataset for analysis. During this process, I selected relevant variables, grouped the data by country, and performed a powertransform to see which variables would benefit from a log transformation. I then used na.omit to handle missing values. The next step in my analysis was to build a Poisson regression model. I chose the Poisson model because the response variable, the count of billionaires per country, is a count data which typically follows a Poisson distribution. I transformed large financial metrics like GDP and tax revenue to reduce skewness, stabilize variance, and improve the model's linearity assumption as indicated by the power transform function. 
   I checked for overdispersion in our Poisson model. Overdispersion occurs when the variance is greater than the mean, which violates an assumption of the Poisson distribution. I quantified dispersion with the ratio of the sum of squared Pearson residuals to the residual degrees of freedom. To account for potential overdispersion, I refitted the model using a quasi-Poisson family, which adjusts the standard errors for overdispersion.Finally, I used the effects package to create plots visualizing the effects of the model predictors on the response variable. These plots provide a graphical representation of the relationships and help in understanding the model in a more intuitive way. 
   I did not use country as a predictor for several reasons. First, country is a nominal variable with many levels, which can lead to a large number of parameters, reducing interpretability. Second, there might be multicollinearity between country and other predictors, such as GDP, which are inherently related to the country's economy.
 
+### Summary for VP
+
 (5) Write a summary of the key findings for the VP of your firm that you report under who is particularly interested in this project. This VP also has a similar statistical background to you and your supervisor, but has not used in years. Further your VP is an extremely busy person and does not like reading long reports; however they will ask an annoying number of questions if they do not understand something. Strike a balance between including how you arrived at the results and the results themselves. Are there certain details you can footnote rather include directly in the body of the report? Are their resources on the web you can hyperlink for additional information rather than recreate the wheel (i.e. [Poisson regression - Wikipedia](https://en.wikipedia.org/wiki/Poisson_regression) ).
 
-### Summary for VP
+
 We have used a statistical model to understand the factors that influence the number of billionaires per country. Our findings suggest the following:
 
 1. Economic Prosperity: There is a strong positive correlation between a country's GDP and the number of billionaires it has. An increase of 1% in GDP is associated with a rise of approximately 1.26% in the number of billionaires. This highlights the importance of overall economic health in generating top-tier wealth.
 
-2. Education's Surprising Influence: Contrary to expectations, primary education enrollment has a substantial positive effect on the number of billionaires. The model indicates that a 1% increase in enrollment corresponds to an increase of approximately 3.84% in the number of billionaires. This could be due to the long-term benefits of education on a country's economic environment.
+2. Education's Influence: Primary education enrollment has a substantial positive effect on the number of billionaires. The model indicates that a 1% increase in enrollment corresponds to an increase of approximately 3.84% in the number of billionaires. This could be due to the long-term benefits of education on a country's economic environment.
 
 3. Population Size Matters Less: Surprisingly, population size displayed a negative correlation. An increase of 1% in population corresponds to a decrease of about 0.24% in the number of billionaires. This suggests that having a larger population does not necessarily translate to more billionaires when controlling for other factors.
 
@@ -136,10 +139,12 @@ We have used a statistical model to understand the factors that influence the nu
 We have ensured the robustness of our model by accounting for overdispersion, which is reflected by our final model being a quasipoisson model.
 
 [Poisson regression - Wikipedia](https://en.wikipedia.org/wiki/Poisson_regression)
+
 [Handling overdispersion on Poisson regressionmodel](https://pubs.aip.org/aip/acp/article-abstract/2326/1/020026/1000550/The-handling-of-overdispersion-on-Poisson?redirectedFrom=fulltext)
 
 [QuasiPoisson regression](https://wiki.q-researchsoftware.com/wiki/Regression_-_Quasi-Poisson_Regression)
 
+### VP response
 
 (6) Suppose your VP responds to your report with the email below. Write a brief response to this email (do not actually write any additional code or do any additional analysis for this part). 
 
@@ -153,7 +158,7 @@ Lastly, I know metrics like "GDP" aren't going to be available for all countries
 
 Thanks!"
 
-### VP response
+
 Dear VP,
 
 I am writing to discuss our analysis of countries without billionaires. To accomplish this, we can utilize statistical models that are specifically designed for datasets with an excess of zeros. One such model is the Zero-Inflated Poisson (ZIP) regression, which models count data with an excess number of zero count outcomes. This model is particularly useful when the data has more zeros than would be expected in a standard Poisson distribution, which aligns with the scenario of countries without billionaires.
@@ -218,16 +223,81 @@ summary(mod2)
 ```
 
 For this problem:
+### 2.1 
 
 (1) Compare the two models summaries. You do not need to interpret each coefficient, but pick a particular variable and explain how the interpretation of the coefficient differs between the two models. What is different about these models? What is the same/ similar?
 
+  Mod1 assumes that the response variable is ordered and deals with ordinal outcomes. It models the likelihood of the response variable being at or below a certain category. This model utilizes a single set of coefficients (excluding intercepts) for all comparisons, assuming proportional odds - the relationship between each pair of outcome groups is the same. On the other hand, Mod2 is used for multinomial outcomes that don't have a natural order. It models the probability of being in each category, independently, except for a reference category.
+
+In mod1, coefficients show the effect of predictors on the log odds of being in a higher category versus all lower categories combined. In mod2, coefficients indicate the change in the log odds of being in a specific category versus the reference category for each predictor. Both models estimate coefficients for the predictors (money, sex, love, work), showing their impact on the outcome variable.
+
+For mod1, the coefficient for "love" (3.60765) suggests that increasing "love" significantly raises the odds of being in a higher happiness category across all thresholds. In mod2, the coefficients for "love" vary across different outcome levels, indicating distinct effects on the probability of each specific happiness category compared to the base category. 
+
+### 2.2
 (2) Can AIC and Deviance be used to compare these two models (Hint: NO!)? Why or why not? What can be used to compare these two models (you do not need to write the code you this, just explain the methodology you would use)?
+
+  No, AIC and Deviance cannot be directly used to compare these two models  because they are based on different likelihood functions due to the underlying assumptions and structure of the models. Since the models are fitted using different likelihood functions, the AIC and Deviance values are not comparable across models. AIC and Deviance are derived from the likelihood of the model, and because the likelihoods are fundamentally different, comparing these values across models would not provide meaningful insights.
+  To compare the two models, we can use the caret package in R to cross-validate and compare them. We can examine the RMSE, R^2, and MAE values to determine which model best fits our data.
+
+### 2.3
 
 (3) Notice that we changed `happy` from a numeric variable to an ordered factor variable. What is the difference between an ordered factor variable and a numeric variable? Why is it important to use an ordered factor variable for `happy` in this case? Are there other variables that can benefit from a similar conversion? If so, what are they and what do they need converted to? (You do not need to write any code for this question, just answer conceptually). 
 
+A numeric variable represents data that can be meaningfully quantified and subjected to arithmetic operations.
+It implies that there is a true numeric distance between the values that reflects a real-world difference. An ordered factor vairable represents categorical data that has a meaningful order or ranking but where the distance between levels is not necessarily equal or even known. It is used when you cannot quantitatively state how much "more" or "less" one category is than another, but you can consistently rank the categories.
+
+The "sex" vairbale is currently numeric, but could be converted to a factor to properly represent its categorical nature.
+
+### 2.4
+
 (4) Create effects plots for each model (remember to adjust the `fig.height` and `fig.width` chunk options so that the plots look nice). What do you notice about the effects plots? What is different between these two models? What is the same? Are the effects easier or harder to interpret than the coefficients? Why or why not?
+### Mod1 Effect plots
+```{r}
+money_effect_mod1 <- effect("money", mod1)
+plot(money_effect_mod1, xlab = "Money", ylab = "Probability", main = "Effect of Money on Happiness")
+
+sex_effect_mod1 <- effect("sex", mod1)
+plot(sex_effect_mod1, xlab = "Sex", ylab = "Probability", main = "Effect of Sex on Happiness")
+
+love_effect_mod1 <- effect("love", mod1)
+plot(love_effect_mod1, xlab = "Love", ylab = "Probability", main = "Effect of Love on Happiness")
+
+work_effect_mod1 <- effect("work", mod1)
+plot(money_effect_mod1, xlab = "Work", ylab = "Probability", main = "Effect of Work on Happiness")
+```
+### Mod2 Effect plots
+```{r}
+money_effect_mod2 <- effect("money", mod2)
+plot(money_effect_mod2, xlab = "Money", ylab = "Probability", main = "Effect of Money on Happiness")
+
+sex_effect_mod2 <- effect("sex", mod2)
+plot(sex_effect_mod2, xlab = "Sex", ylab = "Probability", main = "Effect of Sex on Happiness")
+
+love_effect_mod2 <- effect("love", mod2)
+plot(love_effect_mod2, xlab = "Love", ylab = "Probability", main = "Effect of Love on Happiness")
+
+work_effect_mod2 <- effect("work", mod2)
+plot(money_effect_mod2, xlab = "Work", ylab = "Probability", main = "Effect of Work on Happiness")
+```
+
+### 2.5
 
 (5) Which model do you prefer for this case? Why?
+```{r}
+library(caret)
+set.seed(307)
+
+train_control <- trainControl(method = "cv", number = 10, repeats = 10)
+
+mod1CV <- train(mod1$terms, data = myHappy, trControl = train_control, method = "polr")
+
+mod2CV <- train(mod2$terms, data = myHappy, trControl = train_control, method = "multinom")
+
+print(mod1CV)
+print(mod2CV)
+```
+
+Given these results, mod1CV, which uses the logistic method for the polr model, has a higher accuracy than mod2CV, the penalized multinomial regression model. Therefore, if we are selecting a model based solely on the highest cross-validated accuracy, mod1CV would be the preferred model.
 
 (6) OPTIONAL (no points toward the assignment, but good practice): Write the code for the model comparison you described in (2).
 

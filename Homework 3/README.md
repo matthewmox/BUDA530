@@ -590,17 +590,19 @@ summary(qpmod1)
 plot(allEffects(qpmod1), fig.width = 8, fig.height = 12)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- --> (4) Write a
-summary of your methodology for your direct supervisor. You direct
-supervisor has a similar statistical background as you, but does not use
-it on a daily basis so you will need to briefly refresh them on the
-statistical concepts you used and explain your methodology in detail.
-You know from previous experience that your supervisor is will be
-interested in why you did not use `country` as a predictor, why you used
-a `log` transform for large financial metrics, why you chose to omit
-“NAs”, and how you accounted for overdispersion/ underdispersion.
+![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ### Summary for supervisor
+
+4)  Write a summary of your methodology for your direct supervisor. You
+    direct supervisor has a similar statistical background as you, but
+    does not use it on a daily basis so you will need to briefly refresh
+    them on the statistical concepts you used and explain your
+    methodology in detail. You know from previous experience that your
+    supervisor is will be interested in why you did not use `country` as
+    a predictor, why you used a `log` transform for large financial
+    metrics, why you chose to omit “NAs”, and how you accounted for
+    overdispersion/ underdispersion.
 
 I began by loading and preparing the billionaires dataset for analysis.
 During this process, I selected relevant variables, grouped the data by
@@ -628,6 +630,8 @@ large number of parameters, reducing interpretability. Second, there
 might be multicollinearity between country and other predictors, such as
 GDP, which are inherently related to the country’s economy.
 
+### Summary for VP
+
 5)  Write a summary of the key findings for the VP of your firm that you
     report under who is particularly interested in this project. This VP
     also has a similar statistical background to you and your
@@ -642,8 +646,6 @@ GDP, which are inherently related to the country’s economy.
     regression -
     Wikipedia](https://en.wikipedia.org/wiki/Poisson_regression) ).
 
-### Summary for VP
-
 We have used a statistical model to understand the factors that
 influence the number of billionaires per country. Our findings suggest
 the following:
@@ -654,12 +656,12 @@ the following:
     number of billionaires. This highlights the importance of overall
     economic health in generating top-tier wealth.
 
-2.  Education’s Surprising Influence: Contrary to expectations, primary
-    education enrollment has a substantial positive effect on the number
-    of billionaires. The model indicates that a 1% increase in
-    enrollment corresponds to an increase of approximately 3.84% in the
-    number of billionaires. This could be due to the long-term benefits
-    of education on a country’s economic environment.
+2.  Education’s Influence: Primary education enrollment has a
+    substantial positive effect on the number of billionaires. The model
+    indicates that a 1% increase in enrollment corresponds to an
+    increase of approximately 3.84% in the number of billionaires. This
+    could be due to the long-term benefits of education on a country’s
+    economic environment.
 
 3.  Population Size Matters Less: Surprisingly, population size
     displayed a negative correlation. An increase of 1% in population
@@ -679,12 +681,15 @@ overdispersion, which is reflected by our final model being a
 quasipoisson model.
 
 [Poisson regression -
-Wikipedia](https://en.wikipedia.org/wiki/Poisson_regression) [Handling
-overdispersion on Poisson
+Wikipedia](https://en.wikipedia.org/wiki/Poisson_regression)
+
+[Handling overdispersion on Poisson
 regressionmodel](https://pubs.aip.org/aip/acp/article-abstract/2326/1/020026/1000550/The-handling-of-overdispersion-on-Poisson?redirectedFrom=fulltext)
 
 [QuasiPoisson
 regression](https://wiki.q-researchsoftware.com/wiki/Regression_-_Quasi-Poisson_Regression)
+
+### VP response
 
 6)  Suppose your VP responds to your report with the email below. Write
     a brief response to this email (do not actually write any additional
@@ -715,8 +720,6 @@ particular, would you want to use these estimates for training your
 model or just for prediction?
 
 Thanks!”
-
-### VP response
 
 Dear VP,
 
@@ -925,17 +928,55 @@ summary(mod2)
     ## Residual Deviance: 53.40729 
     ## AIC: 133.4073
 
-For this problem:
+For this problem: \### 2.1
 
 1)  Compare the two models summaries. You do not need to interpret each
     coefficient, but pick a particular variable and explain how the
     interpretation of the coefficient differs between the two models.
     What is different about these models? What is the same/ similar?
 
+Mod1 assumes that the response variable is ordered and deals with
+ordinal outcomes. It models the likelihood of the response variable
+being at or below a certain category. This model utilizes a single set
+of coefficients (excluding intercepts) for all comparisons, assuming
+proportional odds - the relationship between each pair of outcome groups
+is the same. On the other hand, Mod2 is used for multinomial outcomes
+that don’t have a natural order. It models the probability of being in
+each category, independently, except for a reference category.
+
+In mod1, coefficients show the effect of predictors on the log odds of
+being in a higher category versus all lower categories combined. In
+mod2, coefficients indicate the change in the log odds of being in a
+specific category versus the reference category for each predictor. Both
+models estimate coefficients for the predictors (money, sex, love,
+work), showing their impact on the outcome variable.
+
+For mod1, the coefficient for “love” (3.60765) suggests that increasing
+“love” significantly raises the odds of being in a higher happiness
+category across all thresholds. In mod2, the coefficients for “love”
+vary across different outcome levels, indicating distinct effects on the
+probability of each specific happiness category compared to the base
+category.
+
+### 2.2
+
 2)  Can AIC and Deviance be used to compare these two models (Hint:
     NO!)? Why or why not? What can be used to compare these two models
     (you do not need to write the code you this, just explain the
     methodology you would use)?
+
+No, AIC and Deviance cannot be directly used to compare these two models
+because they are based on different likelihood functions due to the
+underlying assumptions and structure of the models. Since the models are
+fitted using different likelihood functions, the AIC and Deviance values
+are not comparable across models. AIC and Deviance are derived from the
+likelihood of the model, and because the likelihoods are fundamentally
+different, comparing these values across models would not provide
+meaningful insights. To compare the two models, we can use the caret
+package in R to cross-validate and compare them. We can examine the
+RMSE, R^2, and MAE values to determine which model best fits our data.
+
+### 2.3
 
 3)  Notice that we changed `happy` from a numeric variable to an ordered
     factor variable. What is the difference between an ordered factor
@@ -945,13 +986,812 @@ For this problem:
     are they and what do they need converted to? (You do not need to
     write any code for this question, just answer conceptually).
 
+A numeric variable represents data that can be meaningfully quantified
+and subjected to arithmetic operations. It implies that there is a true
+numeric distance between the values that reflects a real-world
+difference. An ordered factor vairable represents categorical data that
+has a meaningful order or ranking but where the distance between levels
+is not necessarily equal or even known. It is used when you cannot
+quantitatively state how much “more” or “less” one category is than
+another, but you can consistently rank the categories.
+
+The “sex” vairbale is currently numeric, but could be converted to a
+factor to properly represent its categorical nature.
+
+### 2.4
+
 4)  Create effects plots for each model (remember to adjust the
     `fig.height` and `fig.width` chunk options so that the plots look
     nice). What do you notice about the effects plots? What is different
     between these two models? What is the same? Are the effects easier
-    or harder to interpret than the coefficients? Why or why not?
+    or harder to interpret than the coefficients? Why or why not? \###
+    Mod1 Effect plots
+
+``` r
+money_effect_mod1 <- effect("money", mod1)
+```
+
+    ## 
+    ## Re-fitting to get Hessian
+
+``` r
+plot(money_effect_mod1, xlab = "Money", ylab = "Probability", main = "Effect of Money on Happiness")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+sex_effect_mod1 <- effect("sex", mod1)
+```
+
+    ## 
+    ## Re-fitting to get Hessian
+
+``` r
+plot(sex_effect_mod1, xlab = "Sex", ylab = "Probability", main = "Effect of Sex on Happiness")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
+``` r
+love_effect_mod1 <- effect("love", mod1)
+```
+
+    ## 
+    ## Re-fitting to get Hessian
+
+``` r
+plot(love_effect_mod1, xlab = "Love", ylab = "Probability", main = "Effect of Love on Happiness")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+
+``` r
+work_effect_mod1 <- effect("work", mod1)
+```
+
+    ## 
+    ## Re-fitting to get Hessian
+
+``` r
+plot(money_effect_mod1, xlab = "Work", ylab = "Probability", main = "Effect of Work on Happiness")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-14-4.png)<!-- --> \### Mod2
+Effect plots
+
+``` r
+money_effect_mod2 <- effect("money", mod2)
+plot(money_effect_mod2, xlab = "Money", ylab = "Probability", main = "Effect of Money on Happiness")
+```
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+``` r
+sex_effect_mod2 <- effect("sex", mod2)
+plot(sex_effect_mod2, xlab = "Sex", ylab = "Probability", main = "Effect of Sex on Happiness")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
+
+``` r
+love_effect_mod2 <- effect("love", mod2)
+plot(love_effect_mod2, xlab = "Love", ylab = "Probability", main = "Effect of Love on Happiness")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-15-3.png)<!-- -->
+
+``` r
+work_effect_mod2 <- effect("work", mod2)
+plot(money_effect_mod2, xlab = "Work", ylab = "Probability", main = "Effect of Work on Happiness")
+```
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+    ## Warning in effect.llines(x[good], y[good], lwd = lwd, lty = lty, col =
+    ## colors[1], : spline interpolation may be unstable with only 4 points
+
+![](README_files/figure-gfm/unnamed-chunk-15-4.png)<!-- -->
+
+### 2.5
 
 5)  Which model do you prefer for this case? Why?
+
+``` r
+library(caret)
+```
+
+    ## Warning: package 'caret' was built under R version 4.3.2
+
+    ## Loading required package: lattice
+
+    ## 
+    ## Attaching package: 'lattice'
+
+    ## The following object is masked from 'package:faraway':
+    ## 
+    ##     melanoma
+
+    ## 
+    ## Attaching package: 'caret'
+
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     lift
+
+``` r
+set.seed(307)
+
+train_control <- trainControl(method = "cv", number = 10, repeats = 10)
+```
+
+    ## Warning: `repeats` has no meaning for this resampling method.
+
+``` r
+mod1CV <- train(mod1$terms, data = myHappy, trControl = train_control, method = "polr")
+```
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold01: method=loglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold01: method=cloglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: algorithm did not converge
+
+    ## Warning: model fit failed for Fold01: method=cauchit Error in (function (formula, data, weights, start, ..., subset, na.action,  : 
+    ##   attempt to find suitable starting values failed
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold02: method=loglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold02: method=cloglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: algorithm did not converge
+
+    ## Warning: model fit failed for Fold02: method=cauchit Error in (function (formula, data, weights, start, ..., subset, na.action,  : 
+    ##   attempt to find suitable starting values failed
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold03: method=loglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold03: method=cloglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: algorithm did not converge
+
+    ## Warning: model fit failed for Fold03: method=cauchit Error in (function (formula, data, weights, start, ..., subset, na.action,  : 
+    ##   attempt to find suitable starting values failed
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold04: method=loglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold04: method=cloglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: algorithm did not converge
+
+    ## Warning: model fit failed for Fold04: method=cauchit Error in (function (formula, data, weights, start, ..., subset, na.action,  : 
+    ##   attempt to find suitable starting values failed
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold05: method=loglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold05: method=cloglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: algorithm did not converge
+
+    ## Warning: model fit failed for Fold05: method=cauchit Error in (function (formula, data, weights, start, ..., subset, na.action,  : 
+    ##   attempt to find suitable starting values failed
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold06: method=loglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold06: method=cloglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: algorithm did not converge
+
+    ## Warning: model fit failed for Fold06: method=cauchit Error in (function (formula, data, weights, start, ..., subset, na.action,  : 
+    ##   attempt to find suitable starting values failed
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold07: method=loglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold07: method=cloglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: algorithm did not converge
+
+    ## Warning: model fit failed for Fold07: method=cauchit Error in (function (formula, data, weights, start, ..., subset, na.action,  : 
+    ##   attempt to find suitable starting values failed
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold08: method=loglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold08: method=cloglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: algorithm did not converge
+
+    ## Warning: model fit failed for Fold08: method=cauchit Error in (function (formula, data, weights, start, ..., subset, na.action,  : 
+    ##   attempt to find suitable starting values failed
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold09: method=loglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold09: method=cloglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: algorithm did not converge
+
+    ## Warning: model fit failed for Fold09: method=cauchit Error in (function (formula, data, weights, start, ..., subset, na.action,  : 
+    ##   attempt to find suitable starting values failed
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold10: method=loglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    ## Warning: model fit failed for Fold10: method=cloglog Error in optim(s0, fmin, gmin, method = "BFGS", ...) : 
+    ##   initial value in 'vmmin' is not finite
+
+    ## Warning: glm.fit: algorithm did not converge
+
+    ## Warning: model fit failed for Fold10: method=cauchit Error in (function (formula, data, weights, start, ..., subset, na.action,  : 
+    ##   attempt to find suitable starting values failed
+
+    ## Warning in nominalTrainWorkflow(x = x, y = y, wts = weights, info = trainInfo,
+    ## : There were missing values in resampled performance measures.
+
+    ## Warning in train.default(x, y, weights = w, ...): missing values found in
+    ## aggregated results
+
+``` r
+mod2CV <- train(mod2$terms, data = myHappy, trControl = train_control, method = "multinom")
+```
+
+    ## Warning in nnet::multinom(.outcome ~ ., data = dat, decay = param$decay, :
+    ## groups '2' '3' are empty
+
+    ## # weights:  42 (30 variable)
+    ## initial  value 68.106855 
+    ## iter  10 value 57.434170
+    ## iter  20 value 32.298688
+    ## iter  30 value 27.204267
+    ## iter  40 value 25.838890
+    ## iter  50 value 25.365496
+    ## iter  60 value 25.173956
+    ## iter  70 value 25.155491
+    ## iter  80 value 25.120690
+    ## iter  90 value 25.085919
+    ## iter 100 value 25.082067
+    ## final  value 25.082067 
+    ## stopped after 100 iterations
+
+    ## Warning in nnet::multinom(.outcome ~ ., data = dat, decay = param$decay, :
+    ## groups '2' '3' are empty
+
+    ## # weights:  42 (30 variable)
+    ## initial  value 68.106855 
+    ## iter  10 value 57.738107
+    ## iter  20 value 46.252970
+    ## iter  30 value 45.802364
+    ## final  value 45.802353 
+    ## converged
+
+    ## Warning in nnet::multinom(.outcome ~ ., data = dat, decay = param$decay, :
+    ## groups '2' '3' are empty
+
+    ## # weights:  42 (30 variable)
+    ## initial  value 68.106855 
+    ## iter  10 value 57.434481
+    ## iter  20 value 32.393384
+    ## iter  30 value 27.631534
+    ## iter  40 value 26.530469
+    ## iter  50 value 26.254362
+    ## iter  60 value 26.211482
+    ## iter  70 value 26.205740
+    ## iter  80 value 26.181720
+    ## iter  90 value 26.155341
+    ## iter 100 value 26.147607
+    ## final  value 26.147607 
+    ## stopped after 100 iterations
+    ## # weights:  54 (40 variable)
+    ## initial  value 72.508411 
+    ## iter  10 value 56.517646
+    ## iter  20 value 29.387345
+    ## iter  30 value 14.640762
+    ## iter  40 value 14.174914
+    ## iter  50 value 14.148463
+    ## iter  60 value 14.148355
+    ## iter  60 value 14.148355
+    ## iter  60 value 14.148355
+    ## final  value 14.148355 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 72.508411 
+    ## iter  10 value 56.572827
+    ## iter  20 value 39.998569
+    ## iter  30 value 39.085529
+    ## iter  40 value 39.082172
+    ## final  value 39.082093 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 72.508411 
+    ## iter  10 value 56.517702
+    ## iter  20 value 29.424760
+    ## iter  30 value 15.902295
+    ## iter  40 value 15.735614
+    ## iter  50 value 15.636420
+    ## iter  60 value 15.588068
+    ## iter  70 value 15.510317
+    ## iter  80 value 15.473950
+    ## iter  90 value 15.463543
+    ## iter 100 value 15.438588
+    ## final  value 15.438588 
+    ## stopped after 100 iterations
+    ## # weights:  54 (40 variable)
+    ## initial  value 79.100085 
+    ## iter  10 value 64.143770
+    ## iter  20 value 38.750797
+    ## iter  30 value 26.999268
+    ## iter  40 value 25.813031
+    ## iter  50 value 24.926353
+    ## iter  60 value 24.916813
+    ## iter  70 value 24.916458
+    ## iter  80 value 24.916263
+    ## final  value 24.916252 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 79.100085 
+    ## iter  10 value 64.163631
+    ## iter  20 value 46.168847
+    ## iter  30 value 45.534896
+    ## iter  40 value 45.527131
+    ## final  value 45.527128 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 79.100085 
+    ## iter  10 value 64.143790
+    ## iter  20 value 38.770735
+    ## iter  30 value 27.301043
+    ## iter  40 value 26.147691
+    ## iter  50 value 25.692148
+    ## iter  60 value 25.646671
+    ## iter  70 value 25.630182
+    ## iter  80 value 25.614125
+    ## iter  90 value 25.613004
+    ## iter 100 value 25.606579
+    ## final  value 25.606579 
+    ## stopped after 100 iterations
+    ## # weights:  54 (40 variable)
+    ## initial  value 81.297309 
+    ## iter  10 value 65.516282
+    ## iter  20 value 38.034417
+    ## iter  30 value 26.468448
+    ## iter  40 value 25.053451
+    ## iter  50 value 24.353224
+    ## iter  60 value 24.336029
+    ## iter  70 value 24.332322
+    ## iter  80 value 24.332098
+    ## final  value 24.332070 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 81.297309 
+    ## iter  10 value 65.536816
+    ## iter  20 value 47.618486
+    ## iter  30 value 46.665096
+    ## iter  40 value 46.654415
+    ## final  value 46.654378 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 81.297309 
+    ## iter  10 value 65.516302
+    ## iter  20 value 38.064576
+    ## iter  30 value 26.808698
+    ## iter  40 value 25.485707
+    ## iter  50 value 25.182465
+    ## iter  60 value 25.133235
+    ## iter  70 value 25.118487
+    ## iter  80 value 25.106021
+    ## iter  90 value 25.100477
+    ## iter 100 value 25.093998
+    ## final  value 25.093998 
+    ## stopped after 100 iterations
+
+    ## Warning in nnet::multinom(.outcome ~ ., data = dat, decay = param$decay, :
+    ## group '10' is empty
+
+    ## # weights:  48 (35 variable)
+    ## initial  value 70.701012 
+    ## iter  10 value 52.786798
+    ## iter  20 value 28.055045
+    ## iter  30 value 24.799792
+    ## iter  40 value 24.113711
+    ## iter  50 value 24.000683
+    ## iter  60 value 23.989006
+    ## iter  70 value 23.988329
+    ## final  value 23.988326 
+    ## converged
+
+    ## Warning in nnet::multinom(.outcome ~ ., data = dat, decay = param$decay, :
+    ## group '10' is empty
+
+    ## # weights:  48 (35 variable)
+    ## initial  value 70.701012 
+    ## iter  10 value 52.942943
+    ## iter  20 value 41.222227
+    ## iter  30 value 41.087554
+    ## final  value 41.085270 
+    ## converged
+
+    ## Warning in nnet::multinom(.outcome ~ ., data = dat, decay = param$decay, :
+    ## group '10' is empty
+
+    ## # weights:  48 (35 variable)
+    ## initial  value 70.701012 
+    ## iter  10 value 52.786956
+    ## iter  20 value 28.117885
+    ## iter  30 value 25.076887
+    ## iter  40 value 24.590864
+    ## iter  50 value 24.533055
+    ## iter  60 value 24.511002
+    ## iter  70 value 24.485520
+    ## iter  80 value 24.481157
+    ## iter  90 value 24.470517
+    ## iter 100 value 24.462669
+    ## final  value 24.462669 
+    ## stopped after 100 iterations
+    ## # weights:  54 (40 variable)
+    ## initial  value 74.705636 
+    ## iter  10 value 59.784126
+    ## iter  20 value 31.842213
+    ## iter  30 value 23.446047
+    ## iter  40 value 21.957103
+    ## iter  50 value 20.764098
+    ## iter  60 value 20.708002
+    ## iter  70 value 20.707738
+    ## final  value 20.707738 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 74.705636 
+    ## iter  10 value 59.853778
+    ## iter  20 value 43.870577
+    ## iter  30 value 43.329693
+    ## iter  40 value 43.324216
+    ## final  value 43.324215 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 74.705636 
+    ## iter  10 value 59.784196
+    ## iter  20 value 31.880499
+    ## iter  30 value 23.931677
+    ## iter  40 value 22.615007
+    ## iter  50 value 22.267179
+    ## iter  60 value 22.180571
+    ## iter  70 value 22.054183
+    ## iter  80 value 22.010210
+    ## iter  90 value 21.997406
+    ## iter 100 value 21.983330
+    ## final  value 21.983330 
+    ## stopped after 100 iterations
+    ## # weights:  54 (40 variable)
+    ## initial  value 79.100085 
+    ## iter  10 value 65.991406
+    ## iter  20 value 35.549315
+    ## iter  30 value 26.615125
+    ## iter  40 value 25.456892
+    ## iter  50 value 24.817789
+    ## iter  60 value 24.788342
+    ## iter  70 value 24.784087
+    ## iter  80 value 24.782781
+    ## final  value 24.782780 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 79.100085 
+    ## iter  10 value 66.074902
+    ## iter  20 value 45.785282
+    ## iter  30 value 44.952217
+    ## iter  40 value 44.946431
+    ## final  value 44.946421 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 79.100085 
+    ## iter  10 value 65.991490
+    ## iter  20 value 35.579654
+    ## iter  30 value 26.885944
+    ## iter  40 value 25.833176
+    ## iter  50 value 25.514118
+    ## iter  60 value 25.459951
+    ## iter  70 value 25.435635
+    ## iter  80 value 25.417113
+    ## iter  90 value 25.411789
+    ## iter 100 value 25.405775
+    ## final  value 25.405775 
+    ## stopped after 100 iterations
+    ## # weights:  54 (40 variable)
+    ## initial  value 79.100085 
+    ## iter  10 value 63.429626
+    ## iter  20 value 37.749253
+    ## iter  30 value 28.509760
+    ## iter  40 value 27.252449
+    ## iter  50 value 26.576860
+    ## iter  60 value 26.550679
+    ## iter  70 value 26.538595
+    ## iter  80 value 26.537857
+    ## final  value 26.537855 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 79.100085 
+    ## iter  10 value 63.467995
+    ## iter  20 value 47.325652
+    ## iter  30 value 46.508698
+    ## iter  40 value 46.507497
+    ## final  value 46.507488 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 79.100085 
+    ## iter  10 value 63.429664
+    ## iter  20 value 37.782662
+    ## iter  30 value 28.793810
+    ## iter  40 value 27.651369
+    ## iter  50 value 27.357277
+    ## iter  60 value 27.280652
+    ## iter  70 value 27.247573
+    ## iter  80 value 27.225794
+    ## iter  90 value 27.223192
+    ## iter 100 value 27.209147
+    ## final  value 27.209147 
+    ## stopped after 100 iterations
+    ## # weights:  54 (40 variable)
+    ## initial  value 76.902860 
+    ## iter  10 value 59.628310
+    ## iter  20 value 29.572841
+    ## iter  30 value 18.927717
+    ## iter  40 value 18.430935
+    ## iter  50 value 18.089927
+    ## iter  60 value 18.052965
+    ## iter  70 value 18.047118
+    ## iter  80 value 18.046848
+    ## final  value 18.046848 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 76.902860 
+    ## iter  10 value 59.765929
+    ## iter  20 value 42.514024
+    ## iter  30 value 42.143322
+    ## iter  40 value 42.142192
+    ## final  value 42.142186 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 76.902860 
+    ## iter  10 value 59.628448
+    ## iter  20 value 29.621178
+    ## iter  30 value 19.923199
+    ## iter  40 value 19.459847
+    ## iter  50 value 19.314340
+    ## iter  60 value 19.182980
+    ## iter  70 value 19.105123
+    ## iter  80 value 19.095416
+    ## iter  90 value 19.093989
+    ## iter 100 value 19.089275
+    ## final  value 19.089275 
+    ## stopped after 100 iterations
+    ## # weights:  54 (40 variable)
+    ## initial  value 76.902860 
+    ## iter  10 value 59.916837
+    ## iter  20 value 30.922036
+    ## iter  30 value 20.949411
+    ## iter  40 value 20.032035
+    ## iter  50 value 19.835007
+    ## iter  60 value 19.806494
+    ## iter  70 value 19.805297
+    ## final  value 19.805285 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 76.902860 
+    ## iter  10 value 59.946973
+    ## iter  20 value 42.528537
+    ## iter  30 value 41.934200
+    ## iter  40 value 41.929762
+    ## iter  40 value 41.929762
+    ## iter  40 value 41.929762
+    ## final  value 41.929762 
+    ## converged
+    ## # weights:  54 (40 variable)
+    ## initial  value 76.902860 
+    ## iter  10 value 59.916867
+    ## iter  20 value 30.955844
+    ## iter  30 value 21.514872
+    ## iter  40 value 20.956473
+    ## iter  50 value 20.786466
+    ## iter  60 value 20.701655
+    ## iter  70 value 20.668365
+    ## iter  80 value 20.629482
+    ## iter  90 value 20.625026
+    ## iter 100 value 20.615398
+    ## final  value 20.615398 
+    ## stopped after 100 iterations
+    ## # weights:  54 (40 variable)
+    ## initial  value 85.691759 
+    ## iter  10 value 68.212900
+    ## iter  20 value 38.658532
+    ## iter  30 value 29.199217
+    ## iter  40 value 27.830066
+    ## iter  50 value 27.489691
+    ## iter  60 value 27.459409
+    ## iter  70 value 27.444827
+    ## iter  80 value 27.432294
+    ## iter  90 value 27.429024
+    ## iter 100 value 27.424231
+    ## final  value 27.424231 
+    ## stopped after 100 iterations
+
+``` r
+print(mod1CV)
+```
+
+    ## Ordered Logistic or Probit Regression 
+    ## 
+    ## 39 samples
+    ##  4 predictor
+    ##  9 classes: '2', '3', '4', '5', '6', '7', '8', '9', '10' 
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (10 fold) 
+    ## Summary of sample sizes: 32, 35, 35, 34, 38, 36, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   method    Accuracy   Kappa    
+    ##   cauchit         NaN        NaN
+    ##   cloglog         NaN        NaN
+    ##   logistic  0.5002381  0.2349689
+    ##   loglog          NaN        NaN
+    ##   probit    0.4085714  0.1480743
+    ## 
+    ## Accuracy was used to select the optimal model using the largest value.
+    ## The final value used for the model was method = logistic.
+
+``` r
+print(mod2CV)
+```
+
+    ## Penalized Multinomial Regression 
+    ## 
+    ## 39 samples
+    ##  4 predictor
+    ##  9 classes: '2', '3', '4', '5', '6', '7', '8', '9', '10' 
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (10 fold) 
+    ## Summary of sample sizes: 35, 33, 36, 37, 34, 34, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   decay  Accuracy   Kappa    
+    ##   0e+00  0.4133333  0.2512470
+    ##   1e-04  0.4300000  0.2768627
+    ##   1e-01  0.2966667  0.0542437
+    ## 
+    ## Accuracy was used to select the optimal model using the largest value.
+    ## The final value used for the model was decay = 1e-04.
+
+Given these results, mod1CV, which uses the logistic method for the polr
+model, has a higher accuracy than mod2CV, the penalized multinomial
+regression model. Therefore, if we are selecting a model based solely on
+the highest cross-validated accuracy, mod1CV would be the preferred
+model.
 
 6)  OPTIONAL (no points toward the assignment, but good practice): Write
     the code for the model comparison you described in (2).
