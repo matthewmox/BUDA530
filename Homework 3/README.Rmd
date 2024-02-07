@@ -223,6 +223,7 @@ summary(mod2)
 ```
 
 For this problem:
+
 ### 2.1 
 
 (1) Compare the two models summaries. You do not need to interpret each coefficient, but pick a particular variable and explain how the interpretation of the coefficient differs between the two models. What is different about these models? What is the same/ similar?
