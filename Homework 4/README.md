@@ -603,3 +603,5 @@ of the climate normals.
 
 [Bridger Teton Avalanche
 Center](https://bridgertetonavalanchecenter.org/observations/#/view/avalanches)
+
+[Avalanche Accidents](https://bridgertetonavalanchecenter.org/wyoming-fatalities-by-date-list/)
